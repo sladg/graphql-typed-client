@@ -1,8 +1,9 @@
 import { OperationTypeNode } from 'graphql'
+import { startsWith } from 'lodash'
+import { TypeMapper } from './applyTypeMapperToResponse'
+import { applyTypeMapperToVariable } from './applyTypeMapperToVariable'
 import { getFieldFromPath } from './getFieldFromPath'
 import { LinkedType } from './linkTypeMap'
-import { applyTypeMapperToVariable } from './applyTypeMapperToVariable'
-import { TypeMapper } from './applyTypeMapperToResponse'
 
 export interface Args {
   [arg: string]: any | undefined
@@ -91,7 +92,8 @@ const parseRequest = (request: Request | undefined, ctx: Context, path: string[]
       .map(f => {
         const parsed = parseRequest(fields[f], ctx, [...path, f])
 
-        if (~f.indexOf('on_')) {
+        // @NOTE: only match the fragment if the "on_XXX" is at the beggining of key
+        if (startsWith(f, 'on_')) {
           ctx.fragmentCounter++
           const implementationFragment = `f${ctx.fragmentCounter}`
 
